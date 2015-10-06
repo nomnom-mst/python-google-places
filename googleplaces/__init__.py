@@ -215,8 +215,8 @@ class GooglePlaces(object):
         return self.nearby_search(**kwargs)
 
     def nearby_search(self, language=lang.ENGLISH, keyword=None, location=None,
-               lat_lng=None, name=None, radius=3200, rankby=ranking.PROMINENCE,
-               sensor=False, types=[]):
+                lat_lng=None, name=None, radius=3200, rankby=ranking.PROMINENCE,
+                sensor=False, types=[], pagetoken=None):
         """Perform a nearby search using the Google Places API.
 
         One of either location or lat_lng are required, the rest of the keyword
@@ -244,6 +244,7 @@ class GooglePlaces(object):
                     device using a location sensor (default False).
         types    -- An optional list of types, restricting the results to
                     Places (default []).
+        pagetoken -- Show next search page.(default None)
         """
         if location is None and lat_lng is None:
             raise ValueError('One of location or lat_lng must be passed in.')
@@ -271,6 +272,8 @@ class GooglePlaces(object):
             self._request_params['name'] = name
         if language is not None:
             self._request_params['language'] = language
+        if pagetoken is not None:
+            self._request_params['pagetoken'] = pagetoken
         self._add_required_param_keys()
         url, places_response = _fetch_remote_json(
                 GooglePlaces.NEARBY_SEARCH_API_URL, self._request_params)
@@ -732,6 +735,7 @@ class GooglePlacesSearchResult(object):
         for place in response['results']:
             self._places.append(Place(query_instance, place))
         self._html_attributions = response.get('html_attributions', [])
+        self._next_page_token = response.get('next_page_token', [])
 
     @property
     def raw_response(self):
@@ -753,6 +757,11 @@ class GooglePlacesSearchResult(object):
         module comments for links to the relevant url.
         """
         return self._html_attributions
+
+    @property
+    def next_page_token(self):
+        """Returns the next page token."""
+        return self._next_page_token
 
     @property
     def has_attributions(self):
