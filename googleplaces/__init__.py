@@ -152,6 +152,7 @@ def _get_place_photo(photoreference, api_key, maxheight=None, maxwidth=None,
     return _fetch_remote_file(GooglePlaces.PHOTO_API_URL, params)
 
 def _validate_response(url, response):
+    print response
     """Validates that the response from Google was successful."""
     if response['status'] not in [GooglePlaces.RESPONSE_STATUS_OK,
                                   GooglePlaces.RESPONSE_STATUS_ZERO_RESULTS]:
